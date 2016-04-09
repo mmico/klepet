@@ -34,6 +34,7 @@ function procesirajVnosUporabnika(klepetApp, socket) {
 
 var socket = io.connect();
 var trenutniVzdevek = "", trenutniKanal = "";
+var zasebni="";
 
 var vulgarneBesede = [];
 $.get('/swearWords.txt', function(podatki) {
@@ -97,8 +98,21 @@ $(document).ready(function() {
   socket.on('uporabniki', function(uporabniki) {
     $('#seznam-uporabnikov').empty();
     for (var i=0; i < uporabniki.length; i++) {
-      $('#seznam-uporabnikov').append(divElementEnostavniTekst(uporabniki[i]));
+      if(zasebni!=uporabniki[i])
+        $('#seznam-uporabnikov').append(divElementEnostavniTekst(uporabniki[i]));
+      else{
+        var tmp=divElementEnostavniTekst(uporabniki[i]);
+        tmp.css("background", "grey");
+        $('#seznam-uporabnikov').append(tmp);
+      }
+      
     }
+    
+    $('#seznam-uporabnikov div').click(function(){
+        zasebni=$(this).text();
+        $('#poslji-sporocilo').val('/zasebno "'+ $(this).text()+'" ');
+        $('#poslji-sporocilo').focus();
+      })
   });
 
   setInterval(function() {
