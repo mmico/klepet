@@ -1,7 +1,8 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
-  if (jeSmesko) {
-    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />');
+  var jeSlikca = sporocilo.indexOf("alt='slika'") > -1;
+  if (jeSmesko||jeSlikca) {
+    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/(\&lt\;img)/g, '<img').replace(/jpg\' \/\&gt;/g, 'jpg\' />').replace(/png\' \/\&gt;/g, 'png\' />').replace(/gif\' \/\&gt;/g, 'gif\' />');
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -15,6 +16,7 @@ function divElementHtmlTekst(sporocilo) {
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
   sporocilo = dodajSmeske(sporocilo);
+  sporocilo = slike(sporocilo);
   var sistemskoSporocilo;
 
   if (sporocilo.charAt(0) == '/') {
@@ -144,4 +146,12 @@ function dodajSmeske(vhodnoBesedilo) {
       preslikovalnaTabela[smesko] + "' />");
   }
   return vhodnoBesedilo;
+}
+
+function slike(vhod){
+  vhod = vhod.replace(new RegExp('\\b(http|https)\:\/\/[^\ ]+\.(jpg|png|gif)\\b', 'gi'), function(link) {
+    return "<img alt='slika' class='slika' src='"+link+"' />";
+    
+  })
+  return vhod;
 }
