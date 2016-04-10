@@ -1,8 +1,11 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
+  //auto merge fail manual merge
   var jeSlikca = sporocilo.indexOf("alt='slika'") > -1;
-  if (jeSmesko||jeSlikca) {
+  var video = sporocilo.indexOf('https://www.youtube') > -1;
+  if (jeSmesko||video||jeSlikca) {
     sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/(\&lt\;img)/g, '<img').replace(/jpg\' \/\&gt;/g, 'jpg\' />').replace(/png\' \/\&gt;/g, 'png\' />').replace(/gif\' \/\&gt;/g, 'gif\' />');
+    sporocilo = sporocilo.replace(/\&lt\;iframe/g, '<iframe').replace(/allowfullscreen\&gt\;\&lt\;\/iframe\&gt;/g, 'allowfullscreen></iframe>');
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -17,6 +20,7 @@ function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
   sporocilo = dodajSmeske(sporocilo);
   sporocilo = slike(sporocilo);
+  sporocilo = posnetek(sporocilo);
   var sistemskoSporocilo;
 
   if (sporocilo.charAt(0) == '/') {
@@ -151,7 +155,16 @@ function dodajSmeske(vhodnoBesedilo) {
 function slike(vhod){
   vhod = vhod.replace(new RegExp('\\b(http|https)\:\/\/[^\ ]+\.(jpg|png|gif)\\b', 'gi'), function(link) {
     return "<img alt='slika' class='slika' src='"+link+"' />";
+  })
+  return vhod;
+}
     
+
+function posnetek(vhod){
+  vhod=vhod.replace(new RegExp('\\b(https\\:\/\/www\.youtube\\.com\\/watch\\?v\\=[^\ ]+)\\b', 'gi'), function(vid){
+    vid=vid.substr(32);
+    return "<iframe class='video' src='https://www.youtube.com/embed/"+vid+"' allowfullscreen></iframe>";
+
   })
   return vhod;
 }
